@@ -629,9 +629,12 @@ set(PROTOBUF_PROTOC ${STAGED_INSTALL_PREFIX}/bin/protoc)
 ExternalProject_Add(aws-sdk-cpp 
   GIT_REPOSITORY
   https://github.com/aws/aws-sdk-cpp.git
+  GIT_TAG
+  1.11.130
   GIT_PROGRESS
   1
-  GIT_SUBMODULES ALL
+  GIT_SUBMODULES_RECURSE
+  1
   UPDATE_COMMAND
   ""
   LOG_CONFIGURE
