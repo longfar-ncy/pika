@@ -651,6 +651,7 @@ ExternalProject_Add(aws-sdk-cpp
 
 ExternalProject_Add(rocksdb
   DEPENDS
+  aws-sdk-cpp
   gflags
   gtest
   snappy
@@ -681,9 +682,6 @@ ExternalProject_Add(rocksdb
     -C ${CMAKE_CURRENT_SOURCE_DIR}/${EP_BASE_SUFFIX}/Source/rocksdb 
     USE_AWS=1
     USE_RTTI=1
-    CMAKE_INSTALL_PREFIX=${STAGED_INSTALL_PREFIX}
-    CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-    CMAKE_BUILD_TYPE=${LIB_BUILD_TYPE}
     WITH_BENCHMARK=OFF
     WITH_BENCHMARK_TOOLS=OFF
     WITH_TOOLS=OFF
