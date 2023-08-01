@@ -626,6 +626,29 @@ set(PROTOBUF_PROTOC ${STAGED_INSTALL_PREFIX}/bin/protoc)
 #   make -j${CPU_CORE}
 # )
 
+ExternalProject_Add(aws-sdk-cpp 
+  GIT_REPOSITORY
+  https://github.com/aws/aws-sdk-cpp.git
+  GIT_PROGRESS
+  1
+  GIT_SUBMODULES ALL
+  UPDATE_COMMAND
+  ""
+  LOG_CONFIGURE
+  1
+  LOG_BUILD
+  1
+  LOG_INSTALL
+  1
+  BUILD_ALWAYS
+  1
+  CMAKE_ARGS
+  -DCMAKE_PREFIX_PATH=${STAGED_INSTALL_PREFIX}
+  -DBUILD_ONLY="core;s3;kinesis;transfer"
+  BUILD_COMMAND
+  make -j${CPU_CORE}
+)
+
 ExternalProject_Add(rocksdb
   DEPENDS
   gflags
