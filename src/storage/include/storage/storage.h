@@ -14,6 +14,7 @@
 #include <utility>
 #include <vector>
 
+#include "rocksdb/cloud/db_cloud.h"
 #include "rocksdb/convenience.h"
 #include "rocksdb/filter_policy.h"
 #include "rocksdb/options.h"
@@ -1018,7 +1019,7 @@ class Storage {
   Status GetKeyNum(std::vector<KeyInfo>* key_infos);
   Status StopScanKeyNum();
 
-  rocksdb::DB* GetDBByType(const std::string& type);
+  rocksdb::DBCloud* GetDBByType(const std::string& type);
 
   Status SetOptions(const OptionType& option_type, const std::string& db_type,
                     const std::unordered_map<std::string, std::string>& options);

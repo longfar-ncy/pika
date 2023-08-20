@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "src/redis.h"
+#include "rocksdb/env.h"
 
 namespace storage {
 
@@ -74,6 +75,7 @@ class RedisStrings : public Redis {
 
   // Iterate all data
   void ScanDatabase();
+  std::unique_ptr<rocksdb::Env> env_;
 };
 
 }  //  namespace storage

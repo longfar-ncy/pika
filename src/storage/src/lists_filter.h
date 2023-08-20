@@ -60,7 +60,7 @@ class ListsMetaFilterFactory : public rocksdb::CompactionFilterFactory {
 
 class ListsDataFilter : public rocksdb::CompactionFilter {
  public:
-  ListsDataFilter(rocksdb::DB* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
+  ListsDataFilter(rocksdb::DBCloud* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
       : db_(db),
         cf_handles_ptr_(cf_handles_ptr)
         {}
@@ -118,7 +118,7 @@ class ListsDataFilter : public rocksdb::CompactionFilter {
   const char* Name() const override { return "ListsDataFilter"; }
 
  private:
-  rocksdb::DB* db_ = nullptr;
+  rocksdb::DBCloud* db_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
   rocksdb::ReadOptions default_read_options_;
   mutable std::string cur_key_;
@@ -129,7 +129,7 @@ class ListsDataFilter : public rocksdb::CompactionFilter {
 
 class ListsDataFilterFactory : public rocksdb::CompactionFilterFactory {
  public:
-  ListsDataFilterFactory(rocksdb::DB** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
+  ListsDataFilterFactory(rocksdb::DBCloud** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
       : db_ptr_(db_ptr), cf_handles_ptr_(handles_ptr) {}
 
   std::unique_ptr<rocksdb::CompactionFilter> CreateCompactionFilter(
@@ -139,7 +139,7 @@ class ListsDataFilterFactory : public rocksdb::CompactionFilterFactory {
   const char* Name() const override { return "ListsDataFilterFactory"; }
 
  private:
-  rocksdb::DB** db_ptr_ = nullptr;
+  rocksdb::DBCloud** db_ptr_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
 };
 

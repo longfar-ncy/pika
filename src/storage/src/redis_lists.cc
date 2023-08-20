@@ -13,8 +13,10 @@
 #include "src/scope_record_lock.h"
 #include "src/scope_snapshot.h"
 #include "storage/util.h"
+#include "rocksdb/cloud/cloud_file_system.h"
 
 namespace storage {
+using namespace rocksdb;
 
 const rocksdb::Comparator* ListsDataKeyComparator() {
   static ListsDataKeyComparatorImpl ldkc;
@@ -27,29 +29,68 @@ Status RedisLists::Open(const StorageOptions& storage_options, const std::string
   statistics_store_->SetCapacity(storage_options.statistics_max_size);
   small_compaction_threshold_ = storage_options.small_compaction_threshold;
 
-  rocksdb::Options ops(storage_options.options);
-  Status s = rocksdb::DB::Open(ops, db_path, &db_);
-  if (s.ok()) {
-    // Create column family
-    rocksdb::ColumnFamilyHandle* cf;
-    rocksdb::ColumnFamilyOptions cfo;
-    cfo.comparator = ListsDataKeyComparator();
-    s = db_->CreateColumnFamily(cfo, "data_cf", &cf);
-    if (!s.ok()) {
-      return s;
-    }
-    // Close DB
-    delete cf;
-    delete db_;
-  }
 
   // Open
-  rocksdb::DBOptions db_ops(storage_options.options);
+  rocksdb::Options db_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions meta_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions data_cf_ops(storage_options.options);
   meta_cf_ops.compaction_filter_factory = std::make_shared<ListsMetaFilterFactory>();
   data_cf_ops.compaction_filter_factory = std::make_shared<ListsDataFilterFactory>(&db_, &handles_);
   data_cf_ops.comparator = ListsDataKeyComparator();
+
+  //rocksdb-cloud staff
+  CloudFileSystemOptions cloud_fs_options;
+  std::shared_ptr<FileSystem> cloud_fs;
+  std::string access_key = "minioadmin";
+  std::string secret_key = "minioadmin";
+  std::string kRegion = "us-west-2";
+  cloud_fs_options.credentials.InitializeSimple(access_key, secret_key);
+  if (!cloud_fs_options.credentials.HasValid().ok()) {
+    fprintf(
+        stderr,
+        "Please set env variables "
+        "AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY with cloud credentials");
+    abort();
+  }
+
+  std::string kBucketSuffix = "database";
+  const std::string bucketPrefix = "pika.";
+  cloud_fs_options.src_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
+  cloud_fs_options.dest_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
+
+  CloudFileSystem* cfs;
+  std::string s3_path = db_path.substr(1);
+  Status s = CloudFileSystem::NewAwsFileSystem(
+      FileSystem::Default(), kBucketSuffix, s3_path, kRegion, kBucketSuffix,
+      s3_path, kRegion, cloud_fs_options, nullptr, &cfs);
+  if (!s.ok()) {
+    fprintf(stderr, "Unable to create cloud env in bucket \n");
+    abort();
+  }
+  cloud_fs.reset(cfs);
+
+  // Create options and use the AWS file system that we created earlier
+  env_ = std::move(NewCompositeEnv(cloud_fs));
+  db_ops.env = env_.get();
+  {
+   rocksdb::Options ops(storage_options.options);
+   ops.env = env_.get();
+   const std::string persistent_cache = "";
+   Status s = rocksdb::DBCloud::Open(ops, db_path, persistent_cache, 0, &db_); 
+    if (s.ok()) {
+      // Create column family
+      rocksdb::ColumnFamilyHandle* cf;
+      rocksdb::ColumnFamilyOptions cfo;
+      cfo.comparator = ListsDataKeyComparator();
+      s = db_->CreateColumnFamily(cfo, "data_cf", &cf);
+      if (!s.ok()) {
+        return s;
+      }
+      // Close DB
+      delete cf;
+      delete db_;
+    }
+  }
 
   // use the bloom filter policy to reduce disk reads
   rocksdb::BlockBasedTableOptions table_ops(storage_options.table_options);
@@ -68,7 +109,9 @@ Status RedisLists::Open(const StorageOptions& storage_options, const std::string
   column_families.emplace_back(rocksdb::kDefaultColumnFamilyName, meta_cf_ops);
   // Data CF
   column_families.emplace_back("data_cf", data_cf_ops);
-  return rocksdb::DB::Open(db_ops, db_path, column_families, &handles_, &db_);
+  const std::string persistent_cache = "";
+  return rocksdb::DBCloud::Open(db_ops, db_path, column_families, persistent_cache, 0, &handles_, &db_);
+  //return rocksdb::DB::Open(db_ops, db_path, column_families, &handles_, &db_);
 }
 
 Status RedisLists::CompactRange(const rocksdb::Slice* begin, const rocksdb::Slice* end, const ColumnFamilyType& type) {

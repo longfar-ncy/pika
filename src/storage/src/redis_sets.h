@@ -15,6 +15,7 @@
 #include "src/custom_comparator.h"
 #include "src/lru_cache.h"
 #include "src/redis.h"
+#include "rocksdb/env.h"
 
 #define SPOP_COMPACT_THRESHOLD_COUNT 500
 #define SPOP_COMPACT_THRESHOLD_DURATION (1000 * 1000)  // 1000ms
@@ -76,6 +77,7 @@ class RedisSets : public Redis {
   std::unique_ptr<LRUCache<std::string, size_t>> spop_counts_store_;
   Status ResetSpopCount(const std::string& key);
   Status AddAndGetSpopCount(const std::string& key, uint64_t* count);
+  std::unique_ptr<rocksdb::Env> env_;
 };
 
 }  //  namespace storage

@@ -20,7 +20,7 @@ namespace storage {
 
 class ZSetsScoreFilter : public rocksdb::CompactionFilter {
  public:
-  ZSetsScoreFilter(rocksdb::DB* db, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
+  ZSetsScoreFilter(rocksdb::DBCloud* db, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
       : db_(db), cf_handles_ptr_(handles_ptr) {}
 
   bool Filter(int level, const rocksdb::Slice& key, const rocksdb::Slice& value, std::string* new_value,
@@ -76,7 +76,7 @@ class ZSetsScoreFilter : public rocksdb::CompactionFilter {
   const char* Name() const override { return "ZSetsScoreFilter"; }
 
  private:
-  rocksdb::DB* db_ = nullptr;
+  rocksdb::DBCloud* db_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
   rocksdb::ReadOptions default_read_options_;
   mutable std::string cur_key_;
@@ -87,7 +87,7 @@ class ZSetsScoreFilter : public rocksdb::CompactionFilter {
 
 class ZSetsScoreFilterFactory : public rocksdb::CompactionFilterFactory {
  public:
-  ZSetsScoreFilterFactory(rocksdb::DB** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
+  ZSetsScoreFilterFactory(rocksdb::DBCloud** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
       : db_ptr_(db_ptr), cf_handles_ptr_(handles_ptr) {}
 
   std::unique_ptr<rocksdb::CompactionFilter> CreateCompactionFilter(
@@ -98,7 +98,7 @@ class ZSetsScoreFilterFactory : public rocksdb::CompactionFilterFactory {
   const char* Name() const override { return "ZSetsScoreFilterFactory"; }
 
  private:
-  rocksdb::DB** db_ptr_ = nullptr;
+  rocksdb::DBCloud** db_ptr_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
 };
 

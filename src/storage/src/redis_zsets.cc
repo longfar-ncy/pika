@@ -18,8 +18,10 @@
 #include "src/scope_snapshot.h"
 #include "src/zsets_filter.h"
 #include "storage/util.h"
+#include "rocksdb/cloud/cloud_file_system.h"
 
 namespace storage {
+using namespace rocksdb;
 
 rocksdb::Comparator* ZSetsScoreKeyComparator() {
   static ZSetsScoreKeyComparatorImpl zsets_score_key_compare;
@@ -32,27 +34,8 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   statistics_store_->SetCapacity(storage_options.statistics_max_size);
   small_compaction_threshold_ = storage_options.small_compaction_threshold;
 
-  rocksdb::Options ops(storage_options.options);
-  Status s = rocksdb::DB::Open(ops, db_path, &db_);
-  if (s.ok()) {
-    rocksdb::ColumnFamilyHandle *dcf = nullptr;
-    rocksdb::ColumnFamilyHandle *scf = nullptr;
-    s = db_->CreateColumnFamily(rocksdb::ColumnFamilyOptions(), "data_cf", &dcf);
-    if (!s.ok()) {
-      return s;
-    }
-    rocksdb::ColumnFamilyOptions score_cf_ops;
-    score_cf_ops.comparator = ZSetsScoreKeyComparator();
-    s = db_->CreateColumnFamily(score_cf_ops, "score_cf", &scf);
-    if (!s.ok()) {
-      return s;
-    }
-    delete scf;
-    delete dcf;
-    delete db_;
-  }
 
-  rocksdb::DBOptions db_ops(storage_options.options);
+  rocksdb::Options db_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions meta_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions data_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions score_cf_ops(storage_options.options);
@@ -60,6 +43,64 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   data_cf_ops.compaction_filter_factory = std::make_shared<ZSetsDataFilterFactory>(&db_, &handles_);
   score_cf_ops.compaction_filter_factory = std::make_shared<ZSetsScoreFilterFactory>(&db_, &handles_);
   score_cf_ops.comparator = ZSetsScoreKeyComparator();
+
+  //rocksdb-cloud staff
+  CloudFileSystemOptions cloud_fs_options;
+  std::shared_ptr<FileSystem> cloud_fs;
+  std::string access_key = "minioadmin";
+  std::string secret_key = "minioadmin";
+  std::string kRegion = "us-west-2";
+  cloud_fs_options.credentials.InitializeSimple(access_key, secret_key);
+  if (!cloud_fs_options.credentials.HasValid().ok()) {
+    fprintf(
+        stderr,
+        "Please set env variables "
+        "AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY with cloud credentials");
+    abort();
+  }
+
+  std::string kBucketSuffix = "database";
+  const std::string bucketPrefix = "pika.";
+  cloud_fs_options.src_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
+  cloud_fs_options.dest_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
+
+  CloudFileSystem* cfs;
+  std::string s3_path = db_path.substr(1);
+  Status s = CloudFileSystem::NewAwsFileSystem(
+      FileSystem::Default(), kBucketSuffix, s3_path, kRegion, kBucketSuffix,
+      s3_path, kRegion, cloud_fs_options, nullptr, &cfs);
+  if (!s.ok()) {
+    fprintf(stderr, "Unable to create cloud env in bucket \n");
+    abort();
+  }
+  cloud_fs.reset(cfs);
+
+  // Create options and use the AWS file system that we created earlier
+  env_ = std::move(NewCompositeEnv(cloud_fs));
+  db_ops.env = env_.get();
+  {
+    rocksdb::Options ops(storage_options.options);
+    ops.env = env_.get();
+    const std::string persistent_cache = "";
+    Status s = rocksdb::DBCloud::Open(ops, db_path, persistent_cache, 0, &db_);
+    if (s.ok()) {
+      rocksdb::ColumnFamilyHandle *dcf = nullptr;
+      rocksdb::ColumnFamilyHandle *scf = nullptr;
+      s = db_->CreateColumnFamily(rocksdb::ColumnFamilyOptions(), "data_cf", &dcf);
+      if (!s.ok()) {
+        return s;
+      }
+      rocksdb::ColumnFamilyOptions score_cf_ops;
+      score_cf_ops.comparator = ZSetsScoreKeyComparator();
+      s = db_->CreateColumnFamily(score_cf_ops, "score_cf", &scf);
+      if (!s.ok()) {
+        return s;
+      }
+      delete scf;
+      delete dcf;
+      delete db_;
+    }
+  }
 
   // use the bloom filter policy to reduce disk reads
   rocksdb::BlockBasedTableOptions table_ops(storage_options.table_options);
@@ -80,7 +121,9 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   column_families.emplace_back(rocksdb::kDefaultColumnFamilyName, meta_cf_ops);
   column_families.emplace_back("data_cf", data_cf_ops);
   column_families.emplace_back("score_cf", score_cf_ops);
-  return rocksdb::DB::Open(db_ops, db_path, column_families, &handles_, &db_);
+  const std::string persistent_cache = "";
+  return rocksdb::DBCloud::Open(db_ops, db_path, column_families, persistent_cache, 0, &handles_, &db_);
+  //return rocksdb::DB::Open(db_ops, db_path, column_families, &handles_, &db_);
 }
 
 Status RedisZSets::CompactRange(const rocksdb::Slice* begin, const rocksdb::Slice* end, const ColumnFamilyType& type) {
@@ -1782,7 +1825,7 @@ void RedisZSets::ScanDatabase() {
   auto score_iter = db_->NewIterator(iterator_options, handles_[2]);
   for (score_iter->SeekToFirst(); score_iter->Valid(); score_iter->Next()) {
     ParsedZSetsScoreKey parsed_zsets_score_key(score_iter->key());
-    
+
     LOG(INFO) << fmt::format("[key : {:<30}] [score : {:<20}] [member : {:<20}] [version : {}]",
                              parsed_zsets_score_key.key().ToString(), parsed_zsets_score_key.score(),
                               parsed_zsets_score_key.member().ToString(), parsed_zsets_score_key.version());

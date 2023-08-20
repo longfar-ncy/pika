@@ -5,6 +5,11 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
   cmake_policy(SET CMP0135 NEW)
 endif()
 
+set(CMAKE_INSTALL_RPATH "/usr/local/lib64")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+
 set(CMAKE_CXX_STANDARD 17)
 project(pika)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -51,7 +56,7 @@ elseif(${BUILD_TYPE} STREQUAL RELWITHDEBINFO)
   set(LIB_BUILD_TYPE RELWITHDEBINFO)
 else()
   set(LIB_BUILD_TYPE RELEASE)
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELEASE "-g -DNDEBUG")
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -133,7 +138,7 @@ include(ExternalProject)
 
 ExternalProject_Add(gtest
   URL
-  https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz
+  https://ghproxy.com/https://github.com/google/googletest/archive/refs/tags/release-1.12.1.tar.gz
   URL_HASH
   MD5=e82199374acdfda3f425331028eb4e2a
   DOWNLOAD_NO_PROGRESS
@@ -172,7 +177,7 @@ set(GMOCK_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 
 ExternalProject_Add(gflags
   URL
-  https://github.com/gflags/gflags/archive/refs/tags/v2.2.2.tar.gz
+  https://ghproxy.com/https://github.com/gflags/gflags/archive/refs/tags/v2.2.2.tar.gz
   URL_HASH
   MD5=1a865b93bacfa963201af3f75b7bd64c
   DOWNLOAD_NO_PROGRESS
@@ -210,7 +215,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   ExternalProject_Add(unwind
     DEPENDS
     URL
-    https://github.com/libunwind/libunwind/releases/download/v1.6.2/libunwind-1.6.2.tar.gz
+    https://ghproxy.com/https://github.com/libunwind/libunwind/releases/download/v1.6.2/libunwind-1.6.2.tar.gz
     URL_HASH
     MD5=f625b6a98ac1976116c71708a73dc44a
     DOWNLOAD_NO_PROGRESS
@@ -246,7 +251,7 @@ ExternalProject_Add(glog
   gtest
   ${LIBUNWIND_NAME}
   URL
-  https://github.com/google/glog/archive/refs/tags/v0.6.0.tar.gz
+  https://ghproxy.com/https://github.com/google/glog/archive/refs/tags/v0.6.0.tar.gz
   URL_HASH
   MD5=c98a6068bc9b8ad9cebaca625ca73aa2
   DOWNLOAD_NO_PROGRESS
@@ -289,7 +294,7 @@ set(GLOG_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 ExternalProject_Add(snappy
   DEPENDS
   URL
-  https://github.com/google/snappy/archive/refs/tags/1.1.7.tar.gz
+  https://ghproxy.com/https://github.com/google/snappy/archive/refs/tags/1.1.7.tar.gz
   URL_HASH
   MD5=ee9086291c9ae8deb4dac5e0b85bf54a
   DOWNLOAD_NO_PROGRESS
@@ -325,7 +330,7 @@ set(SNAPPY_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 ExternalProject_Add(zstd
   DEPENDS
   URL
-  https://github.com/facebook/zstd/releases/download/v1.5.4/zstd-1.5.4.tar.gz
+  https://ghproxy.com/https://github.com/facebook/zstd/releases/download/v1.5.4/zstd-1.5.4.tar.gz
   URL_HASH
   MD5=2352b1f9ccc7446641046bb3d440c3ed
   DOWNLOAD_NO_PROGRESS
@@ -363,7 +368,7 @@ set(ZSTD_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 ExternalProject_Add(fmt
   DEPENDS
   URL
-  https://github.com/fmtlib/fmt/archive/refs/tags/7.1.0.tar.gz
+  https://ghproxy.com/https://github.com/fmtlib/fmt/archive/refs/tags/7.1.0.tar.gz
   URL_HASH
   MD5=32af902636d373641f4ef9032fc65b3a
   DOWNLOAD_NO_PROGRESS
@@ -402,7 +407,7 @@ set(FMT_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 ExternalProject_Add(lz4
   DEPENDS
   URL
-  https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz
+  https://ghproxy.com/https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz
   URL_HASH
   MD5=e9286adb64040071c5e23498bf753261
   DOWNLOAD_NO_PROGRESS
@@ -440,7 +445,7 @@ set(LZ4_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 ExternalProject_Add(zlib
   DEPENDS
   URL
-  https://github.com/madler/zlib/releases/download/v1.2.13/zlib-1.2.13.tar.gz
+  https://ghproxy.com/https://github.com/madler/zlib/releases/download/v1.2.13/zlib-1.2.13.tar.gz
   URL_HASH
   MD5=9b8aa094c4e5765dabf4da391f00d15c
   DOWNLOAD_NO_PROGRESS
@@ -470,7 +475,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     DEPENDS
     unwind
     URL
-    https://github.com/gperftools/gperftools/releases/download/gperftools-2.10/gperftools-2.10.tar.gz
+    https://ghproxy.com/https://github.com/gperftools/gperftools/releases/download/gperftools-2.10/gperftools-2.10.tar.gz
     URL_HASH
     MD5=62bf6c76ba855ed580de5e139bd2a483
     DOWNLOAD_NO_PROGRESS
@@ -499,7 +504,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   ExternalProject_Add(jemalloc
     DEPENDS
     URL
-    https://github.com/jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz
+    https://ghproxy.com/https://github.com/jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz
     URL_HASH
     MD5=594dd8e0a1e8c1ef8a1b210a1a5aff5b
     DOWNLOAD_NO_PROGRESS
@@ -536,7 +541,7 @@ ExternalProject_Add(protobuf
   DEPENDS
   zlib
   URL
-  https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-cpp-3.17.3.tar.gz
+  https://ghproxy.com/https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-cpp-3.17.3.tar.gz
   URL_HASH
   MD5=3fe4c2647e0991c014a386a896d0a116
   DOWNLOAD_NO_PROGRESS
@@ -574,66 +579,75 @@ set(PROTOBUF_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 set(PROTOBUF_LIBRARY ${INSTALL_LIBDIR}/${LIB_PROTOBUF})
 set(PROTOBUF_PROTOC ${STAGED_INSTALL_PREFIX}/bin/protoc)
 
-# ExternalProject_Add(rocksdb
-#   DEPENDS
-#   gflags
-#   gtest
-#   snappy
-#   zstd
-#   lz4
-#   zlib
-#   ${LIBGPERF_NAME}
-#   ${LIBJEMALLOC_NAME}
-#   URL
-#   https://github.com/facebook/rocksdb/archive/refs/tags/v8.1.1.tar.gz
-#   URL_HASH
-#   MD5=3b4c97ee45df9c8a5517308d31ab008b
-#   DOWNLOAD_NO_PROGRESS
-#   1
-#   UPDATE_COMMAND
-#   ""
-#   LOG_CONFIGURE
-#   1
-#   LOG_BUILD
-#   1
-#   LOG_INSTALL
-#   1
-#   BUILD_ALWAYS
-#   1
-#   CMAKE_ARGS
-#   -DCMAKE_INSTALL_PREFIX=${STAGED_INSTALL_PREFIX}
-#   -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
-#   -DCMAKE_BUILD_TYPE=${LIB_BUILD_TYPE}
-#   -DUSE_RTTI=1
-#   -DWITH_BENCHMARK=OFF
-#   -DWITH_BENCHMARK_TOOLS=OFF
-#   -DWITH_TOOLS=OFF
-#   -DWITH_CORE_TOOLS=OFF
-#   -DWITH_TESTS=OFF
-#   -DWITH_TRACE_TOOLS=OFF
-#   -DWITH_EXAMPLES=OFF
-#   -DROCKSDB_BUILD_SHARED=OFF
-#   -DWITH_JEMALLOC=${JEMALLOC_ON}
-#   -DWITH_LZ4=ON
-#   -DWITH_SNAPPY=ON
-#   -DWITH_ZLIB=ON
-#   -DWITH_ZSTD=ON
-#   -DWITH_GFLAGS=ON
-#   -DFAIL_ON_WARNINGS=OFF
-#   -DWITH_LIBURING=OFF
-#   -DPORTABLE=1
-#   BUILD_COMMAND
-#   make -j${CPU_CORE}
-# )
-
-ExternalProject_Add(aws-sdk-cpp 
-  GIT_REPOSITORY
-  https://github.com/aws/aws-sdk-cpp.git
-  GIT_TAG
-  1.11.130
-  GIT_PROGRESS
+ExternalProject_Add(rocksdb
+  DEPENDS
+  gflags
+  gtest
+  snappy
+  zstd
+  lz4
+  zlib
+  ${LIBGPERF_NAME}
+  ${LIBJEMALLOC_NAME}
+  URL
+  https://github.com/wangshao1/rocksdb-cloud/archive/refs/heads/pika.zip
+  URL_HASH
+  MD5=afe99a7632698b8acd84137d62e6cc1a
+  DOWNLOAD_NO_PROGRESS
   1
-  GIT_SUBMODULES_RECURSE
+  UPDATE_COMMAND
+  ""
+  LOG_CONFIGURE
+  1
+  LOG_BUILD
+  1
+  LOG_INSTALL
+  1
+  BUILD_ALWAYS
+  1
+  CMAKE_ARGS
+  -DCMAKE_INSTALL_PREFIX=${STAGED_INSTALL_PREFIX}
+  -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+  -DCMAKE_BUILD_TYPE=${LIB_BUILD_TYPE}
+  -DUSE_RTTI=1
+  -DWITH_BENCHMARK=OFF
+  -DWITH_BENCHMARK_TOOLS=OFF
+  -DWITH_TOOLS=OFF
+  -DWITH_CORE_TOOLS=OFF
+  -DWITH_TESTS=OFF
+  -DWITH_TRACE_TOOLS=OFF
+  -DWITH_EXAMPLES=OFF
+  -DROCKSDB_BUILD_SHARED=OFF
+  -DWITH_JEMALLOC=${JEMALLOC_ON}
+  -DWITH_LZ4=ON
+  -DWITH_SNAPPY=ON
+  -DWITH_ZLIB=ON
+  -DWITH_ZSTD=ON
+  -DWITH_GFLAGS=ON
+  -DFAIL_ON_WARNINGS=OFF
+  -DWITH_LIBURING=OFF
+  -DPORTABLE=1
+  -DWITH_AWS=ON
+  BUILD_COMMAND
+  make -j${CPU_CORE}
+)
+
+#[[
+ExternalProject_Add(rocksdb
+  DEPENDS
+  gflags
+  gtest
+  snappy
+  zstd
+  lz4
+  zlib
+  ${LIBGPERF_NAME}
+  ${LIBJEMALLOC_NAME}
+  URL
+  https://ghproxy.com/https://github.com/facebook/rocksdb/archive/refs/tags/v8.1.1.tar.gz
+  URL_HASH
+  MD5=3b4c97ee45df9c8a5517308d31ab008b
+  DOWNLOAD_NO_PROGRESS
   1
   UPDATE_COMMAND
   ""
@@ -651,68 +665,13 @@ ExternalProject_Add(aws-sdk-cpp
   BUILD_COMMAND
   make -j${CPU_CORE}
 )
-
-ExternalProject_Add(rocksdb
-  DEPENDS
-  aws-sdk-cpp
-  gflags
-  gtest
-  snappy
-  zstd
-  lz4
-  zlib
-  ${LIBGPERF_NAME}
-  ${LIBJEMALLOC_NAME}
-  GIT_REPOSITORY
-  https://github.com/rockset/rocksdb-cloud.git
-  GIT_PROGRESS
-  1
-  UPDATE_COMMAND
-  ""
-  CONFIGURE_COMMAND
-  ""
-  LOG_CONFIGURE
-  1
-  LOG_BUILD
-  1
-  LOG_INSTALL
-  1
-  BUILD_ALWAYS
-  1
-  BUILD_COMMAND
-  make static_lib 
-    -j${CPU_CORE} 
-    -C ${CMAKE_CURRENT_SOURCE_DIR}/${EP_BASE_SUFFIX}/Source/rocksdb 
-    USE_AWS=1
-    USE_RTTI=1
-    WITH_BENCHMARK=OFF
-    WITH_BENCHMARK_TOOLS=OFF
-    WITH_TOOLS=OFF
-    WITH_CORE_TOOLS=OFF
-    WITH_TESTS=OFF
-    WITH_TRACE_TOOLS=OFF
-    WITH_EXAMPLES=OFF
-    ROCKSDB_BUILD_SHARED=OFF
-    WITH_JEMALLOC=${JEMALLOC_ON}
-    WITH_LZ4=ON
-    WITH_SNAPPY=ON
-    WITH_ZLIB=ON
-    WITH_ZSTD=ON
-    WITH_GFLAGS=ON
-    FAIL_ON_WARNINGS=OFF
-    WITH_LIBURING=OFF
-    PORTABLE=1
-  INSTALL_COMMAND
-  cp -n ${CMAKE_CURRENT_SOURCE_DIR}/${EP_BASE_SUFFIX}/Source/rocksdb/librocksdb.a ${INSTALL_LIBDIR}/librocksdb.a 
-  COMMAND
-  cp -r ${CMAKE_CURRENT_SOURCE_DIR}/${EP_BASE_SUFFIX}/Source/rocksdb/include/rocksdb ${INSTALL_INCLUDEDIR}
-)
+]]
 
 option(USE_PIKA_TOOLS "compile pika-tools" OFF)
 if (USE_PIKA_TOOLS)
   ExternalProject_Add(hiredis
     URL
-    https://github.com/vipshop/hiredis-vip/archive/refs/tags/0.3.0.tar.gz
+    https://ghproxy.com/https://github.com/vipshop/hiredis-vip/archive/refs/tags/0.3.0.tar.gz
     URL_HASH
     MD5=e4d4a2928188b11f696d35ca1c52e9a4
     DOWNLOAD_NO_PROGRESS
@@ -869,6 +828,10 @@ target_link_libraries(${PROJECT_NAME}
   libzstd.a
   liblz4.a
   libz.a
+  libaws-cpp-sdk-core.so 
+  libaws-cpp-sdk-transfer.so
+  libaws-cpp-sdk-kinesis.so
+  libaws-cpp-sdk-s3.so
   ${LIBUNWIND_LIBRARY}
   ${JEMALLOC_LIBRARY})
 

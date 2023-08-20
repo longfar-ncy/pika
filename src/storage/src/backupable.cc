@@ -16,7 +16,7 @@ BackupEngine::~BackupEngine() {
   WaitBackupPthread();
 }
 
-Status BackupEngine::NewCheckpoint(rocksdb::DB* rocksdb_db, const std::string& type) {
+Status BackupEngine::NewCheckpoint(rocksdb::DBCloud* rocksdb_db, const std::string& type) {
   rocksdb::DBCheckpoint* checkpoint;
   Status s = rocksdb::DBCheckpoint::Create(rocksdb_db, &checkpoint);
   if (!s.ok()) {
@@ -35,7 +35,7 @@ Status BackupEngine::Open(storage::Storage* storage, std::shared_ptr<BackupEngin
 
   // Create BackupEngine for each db type
   rocksdb::Status s;
-  rocksdb::DB* rocksdb_db;
+  rocksdb::DBCloud* rocksdb_db;
   std::string types[] = {STRINGS_DB, HASHES_DB, LISTS_DB, ZSETS_DB, SETS_DB};
   for (const auto& type : types) {
     if (!(rocksdb_db = storage->GetDBByType(type))) {

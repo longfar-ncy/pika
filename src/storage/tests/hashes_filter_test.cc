@@ -15,13 +15,13 @@
 
 // // Filter
 // TEST(HashesFilterTest, FilterTest) {
-//   rocksdb::DB* meta_db;
+//   rocksdb::DBCloud* meta_db;
 //   std::string db_path = "./db/hash_meta";
 //   std::vector<rocksdb::ColumnFamilyHandle*> handles;
 
 //   storage::Options options;
 //   options.create_if_missing = true;
-//   rocksdb::Status s = rocksdb::DB::Open(options, db_path, &meta_db);
+//   rocksdb::Status s = rocksdb::DBCloud::Open(options, db_path, &meta_db);
 
 //   if (s.ok()) {
 //     // create column family
@@ -45,7 +45,7 @@
 //   column_families.push_back(rocksdb::ColumnFamilyDescriptor(
 //       "data_cf", data_cf_ops));
 
-//   s = rocksdb::DB::Open(options, db_path, column_families, &handles, &meta_db);
+//   s = rocksdb::DBCloud::Open(options, db_path, column_families, &handles, &meta_db);
 //   ASSERT_TRUE(s.ok());
 
 //   char str[4];

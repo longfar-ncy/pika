@@ -10,7 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "rocksdb/db.h"
+//#include "rocksdb/db.h"
+#include "rocksdb/cloud/db_cloud.h"
 #include "rocksdb/slice.h"
 #include "rocksdb/status.h"
 
@@ -28,7 +29,7 @@ class Redis {
   Redis(Storage* storage, const DataType& type);
   virtual ~Redis();
 
-  rocksdb::DB* GetDB() { return db_; }
+  rocksdb::DBCloud* GetDB() { return db_; }
 
   Status SetOptions(const OptionType& option_type, const std::unordered_map<std::string, std::string>& options);
 
@@ -60,7 +61,7 @@ class Redis {
   Storage* const storage_;
   DataType type_;
   std::shared_ptr<LockMgr> lock_mgr_;
-  rocksdb::DB* db_ = nullptr;
+  rocksdb::DBCloud* db_ = nullptr;
 
   std::vector<rocksdb::ColumnFamilyHandle*> handles_;
   rocksdb::WriteOptions default_write_options_;

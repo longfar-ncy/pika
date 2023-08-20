@@ -26,7 +26,7 @@ class ListsFilterTest : public ::testing::Test {
       mkdir(db_path.c_str(), 0755);
     }
     options.create_if_missing = true;
-    s = rocksdb::DB::Open(options, db_path, &meta_db);
+    s = rocksdb::DBCloud::Open(options, db_path, &meta_db);
     if (s.ok()) {
       // create column family
       rocksdb::ColumnFamilyHandle* cf;
@@ -43,7 +43,7 @@ class ListsFilterTest : public ::testing::Test {
     // Data CF
     column_families.emplace_back("data_cf", data_cf_ops);
 
-    s = rocksdb::DB::Open(options, db_path, column_families, &handles, &meta_db);
+    s = rocksdb::DBCloud::Open(options, db_path, column_families, &handles, &meta_db);
   }
   ~ListsFilterTest() override = default;
 
@@ -56,7 +56,7 @@ class ListsFilterTest : public ::testing::Test {
   }
 
   storage::Options options;
-  rocksdb::DB* meta_db;
+  rocksdb::DBCloud* meta_db;
   storage::Status s;
 
   std::vector<rocksdb::ColumnFamilyDescriptor> column_families;

@@ -6,20 +6,20 @@
 #ifndef SRC_SCOPE_SNAPSHOT_H_
 #define SRC_SCOPE_SNAPSHOT_H_
 
-#include "rocksdb/db.h"
+#include "rocksdb/cloud/db_cloud.h"
 
 #include "pstd/include/noncopyable.h"
 
 namespace storage {
 class ScopeSnapshot : public pstd::noncopyable {
  public:
-  ScopeSnapshot(rocksdb::DB* db, const rocksdb::Snapshot** snapshot) : db_(db), snapshot_(snapshot) {
+  ScopeSnapshot(rocksdb::DBCloud* db, const rocksdb::Snapshot** snapshot) : db_(db), snapshot_(snapshot) {
     *snapshot_ = db_->GetSnapshot();
   }
   ~ScopeSnapshot() { db_->ReleaseSnapshot(*snapshot_); }
 
  private:
-  rocksdb::DB* const db_;
+  rocksdb::DBCloud* const db_;
   const rocksdb::Snapshot** snapshot_;
 };
 
