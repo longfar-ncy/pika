@@ -47,8 +47,8 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   //rocksdb-cloud staff
   CloudFileSystemOptions cloud_fs_options;
   std::shared_ptr<FileSystem> cloud_fs;
-  std::string access_key = "wangshaoyi";
-  std::string secret_key = "wangshaoyi";
+  std::string access_key = "minioadmin";
+  std::string secret_key = "minioadmin";
   std::string kRegion = "us-west-2";
   cloud_fs_options.credentials.InitializeSimple(access_key, secret_key);
   if (!cloud_fs_options.credentials.HasValid().ok()) {
@@ -59,15 +59,16 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
     abort();
   }
 
-  std::string kBucketSuffix = "cloud.durable.example.zset";
+  std::string kBucketSuffix = "database";
   const std::string bucketPrefix = "pika.";
   cloud_fs_options.src_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
   cloud_fs_options.dest_bucket.SetBucketName(kBucketSuffix, bucketPrefix);
 
   CloudFileSystem* cfs;
+  std::string s3_path = db_path.substr(1);
   Status s = CloudFileSystem::NewAwsFileSystem(
-      FileSystem::Default(), kBucketSuffix, db_path, kRegion, kBucketSuffix,
-      db_path, kRegion, cloud_fs_options, nullptr, &cfs);
+      FileSystem::Default(), kBucketSuffix, s3_path, kRegion, kBucketSuffix,
+      s3_path, kRegion, cloud_fs_options, nullptr, &cfs);
   if (!s.ok()) {
     fprintf(stderr, "Unable to create cloud env in bucket \n");
     abort();

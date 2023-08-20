@@ -592,7 +592,7 @@ ExternalProject_Add(rocksdb
   URL
   https://github.com/wangshao1/rocksdb-cloud/archive/refs/heads/pika.zip
   URL_HASH
-  MD5=81aace4a7b75c258b758313447bf7990
+  MD5=afe99a7632698b8acd84137d62e6cc1a
   DOWNLOAD_NO_PROGRESS
   1
   UPDATE_COMMAND
