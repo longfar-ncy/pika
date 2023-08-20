@@ -62,7 +62,6 @@ Status RedisStrings::Open(const StorageOptions& storage_options, const std::stri
   // Create options and use the AWS file system that we created earlier
   env_ = std::move(NewCompositeEnv(cloud_fs));
   ops.env = env_.get();
-  ops.create_if_missing = true;
 
   // use the bloom filter policy to reduce disk reads
   rocksdb::BlockBasedTableOptions table_ops(storage_options.table_options);
