@@ -59,7 +59,7 @@ class BaseMetaFilterFactory : public rocksdb::CompactionFilterFactory {
 
 class BaseDataFilter : public rocksdb::CompactionFilter {
  public:
-  BaseDataFilter(rocksdb::DB* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
+  BaseDataFilter(rocksdb::DBCloud* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
       : db_(db),
         cf_handles_ptr_(cf_handles_ptr)
         {}
@@ -117,7 +117,7 @@ class BaseDataFilter : public rocksdb::CompactionFilter {
   const char* Name() const override { return "BaseDataFilter"; }
 
  private:
-  rocksdb::DB* db_ = nullptr;
+  rocksdb::DBCloud* db_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
   rocksdb::ReadOptions default_read_options_;
   mutable std::string cur_key_;
@@ -128,7 +128,7 @@ class BaseDataFilter : public rocksdb::CompactionFilter {
 
 class BaseDataFilterFactory : public rocksdb::CompactionFilterFactory {
  public:
-  BaseDataFilterFactory(rocksdb::DB** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
+  BaseDataFilterFactory(rocksdb::DBCloud** db_ptr, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
       : db_ptr_(db_ptr), cf_handles_ptr_(handles_ptr) {}
   std::unique_ptr<rocksdb::CompactionFilter> CreateCompactionFilter(
       const rocksdb::CompactionFilter::Context& context) override {
@@ -137,7 +137,7 @@ class BaseDataFilterFactory : public rocksdb::CompactionFilterFactory {
   const char* Name() const override { return "BaseDataFilterFactory"; }
 
  private:
-  rocksdb::DB** db_ptr_ = nullptr;
+  rocksdb::DBCloud** db_ptr_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
 };
 

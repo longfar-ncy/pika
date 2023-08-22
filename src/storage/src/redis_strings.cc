@@ -24,6 +24,7 @@ namespace storage {
 RedisStrings::RedisStrings(Storage* const s, const DataType& type) : Redis(s, type) {}
 
 Status RedisStrings::Open(const StorageOptions& storage_options, const std::string& db_path) {
+  using namespace rocksdb;
   rocksdb::Options ops(storage_options.options);
   ops.compaction_filter_factory = std::make_shared<StringsFilterFactory>();
 
@@ -35,7 +36,11 @@ Status RedisStrings::Open(const StorageOptions& storage_options, const std::stri
   table_ops.filter_policy.reset(rocksdb::NewBloomFilterPolicy(10, true));
   ops.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_ops));
 
-  return rocksdb::DB::Open(ops, db_path, &db_);
+  // rocksdb-cloud
+  auto env = GetCloudEnv(storage_options.cloud_fs_options, db_path);
+  ops.env = env.get();
+  return rocksdb::DBCloud::Open(ops, db_path, "", 0, &db_);
+  // return rocksdb::DB::Open(ops, db_path, &db_);
 }
 
 Status RedisStrings::CompactRange(const rocksdb::Slice* begin, const rocksdb::Slice* end,

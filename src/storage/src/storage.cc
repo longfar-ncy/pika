@@ -1701,7 +1701,7 @@ Status Storage::StopScanKeyNum() {
   return Status::OK();
 }
 
-rocksdb::DB* Storage::GetDBByType(const std::string& type) {
+rocksdb::DBCloud* Storage::GetDBByType(const std::string& type) {
   if (type == STRINGS_DB) {
     return strings_db_->GetDB();
   } else if (type == HASHES_DB) {

@@ -5,6 +5,7 @@
 
 #include "src/redis.h"
 #include <sstream>
+#include "redis.h"
 
 namespace storage {
 
@@ -69,6 +70,23 @@ Status Redis::AddCompactKeyTaskIfNeeded(const std::string& key, size_t total) {
     statistics_store_->Remove(key);
   }
   return Status::OK();
+}
+
+std::unique_ptr<rocksdb::Env> Redis::GetCloudEnv(const rocksdb::CloudFileSystemOptions& opts,
+                                                 const std::string& db_path) {
+  std::string s3_path = db_path[0] == '.' ? db_path.substr(1) : db_path;
+  rocksdb::CloudFileSystem* cfs = nullptr;
+  Status s = rocksdb::CloudFileSystem::NewAwsFileSystem(
+    rocksdb::FileSystem::Default(), 
+    "", s3_path, "", // src  
+    "", s3_path, "", // dest
+    opts, 
+    nullptr, 
+    &cfs
+  );
+  assert(s.ok());
+  std::shared_ptr<rocksdb::CloudFileSystem> cloud_fs(cfs);
+  return NewCompositeEnv(cloud_fs);
 }
 
 Status Redis::SetOptions(const OptionType& option_type, const std::unordered_map<std::string, std::string>& options) {

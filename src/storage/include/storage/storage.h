@@ -21,6 +21,8 @@
 #include "rocksdb/slice.h"
 #include "rocksdb/status.h"
 #include "rocksdb/table.h"
+#include "rocksdb/cloud/cloud_file_system.h"
+#include "rocksdb/cloud/db_cloud.h"
 
 #include "pstd/include/pstd_mutex.h"
 
@@ -67,6 +69,13 @@ struct StorageOptions {
   size_t statistics_max_size = 0;
   size_t small_compaction_threshold = 5000;
   Status ResetOptions(const OptionType& option_type, const std::unordered_map<std::string, std::string>& options_map);
+  
+  // rocksdb-cloud option
+  std::string bucket_prefix = "pika.";
+  std::string bucket_suffix = "database";
+  std::string access_key = "minioadmin";
+  std::string secret_key = "minioadmin";
+  rocksdb::CloudFileSystemOptions cloud_fs_options;
 };
 
 struct KeyValue {
@@ -1018,7 +1027,7 @@ class Storage {
   Status GetKeyNum(std::vector<KeyInfo>* key_infos);
   Status StopScanKeyNum();
 
-  rocksdb::DB* GetDBByType(const std::string& type);
+  rocksdb::DBCloud* GetDBByType(const std::string& type);
 
   Status SetOptions(const OptionType& option_type, const std::string& db_type,
                     const std::unordered_map<std::string, std::string>& options);
