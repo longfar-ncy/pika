@@ -788,6 +788,10 @@ target_link_libraries(${PROJECT_NAME}
   libzstd.a
   liblz4.a
   libz.a
+  libaws-cpp-sdk-core.so 
+  libaws-cpp-sdk-transfer.so
+  libaws-cpp-sdk-kinesis.so
+  libaws-cpp-sdk-s3.so
   ${LIBUNWIND_LIBRARY}
   ${JEMALLOC_LIBRARY})
 
