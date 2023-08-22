@@ -585,9 +585,9 @@ ExternalProject_Add(rocksdb
   ${LIBGPERF_NAME}
   ${LIBJEMALLOC_NAME}
   URL
-  https://github.com/facebook/rocksdb/archive/refs/tags/v8.1.1.tar.gz
+  https://github.com/wangshao1/rocksdb-cloud/archive/refs/heads/pika.zip
   URL_HASH
-  MD5=3b4c97ee45df9c8a5517308d31ab008b
+  MD5=afe99a7632698b8acd84137d62e6cc1a
   DOWNLOAD_NO_PROGRESS
   1
   UPDATE_COMMAND
@@ -622,6 +622,7 @@ ExternalProject_Add(rocksdb
   -DFAIL_ON_WARNINGS=OFF
   -DWITH_LIBURING=OFF
   -DPORTABLE=1
+  -DWITH_AWS=ON
   BUILD_COMMAND
   make -j${CPU_CORE}
 )
