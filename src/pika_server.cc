@@ -1576,6 +1576,7 @@ void PikaServer::InitStorageOptions() {
   assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
   cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");
   cloud_fs_opts.dest_bucket.SetBucketName("database.longfar", "pika.");
+  storage_options_.options.max_log_file_size = 0; // TODO: better handles of `assert(cloud_maifest)`
 }
 
 storage::Status PikaServer::RewriteStorageOptions(const storage::OptionType& option_type,
