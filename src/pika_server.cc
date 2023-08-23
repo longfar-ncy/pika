@@ -1572,10 +1572,10 @@ void PikaServer::InitStorageOptions() {
 
   // rocksdb-cloud
   auto& cloud_fs_opts = storage_options_.cloud_fs_options;
-  cloud_fs_opts.credentials.InitializeSimple(storage_options_.access_key, storage_options_.secret_key);
-  assert(cloud_fs_opts.credentials.HasValid().ok());
-  cloud_fs_opts.src_bucket.SetBucketName(storage_options_.bucket_suffix, storage_options_.bucket_prefix);
-  cloud_fs_opts.dest_bucket.SetBucketName(storage_options_.bucket_suffix, storage_options_.bucket_prefix);
+  cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
+  assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
+  cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");
+  cloud_fs_opts.dest_bucket.SetBucketName("database.longfar", "pika.");
 }
 
 storage::Status PikaServer::RewriteStorageOptions(const storage::OptionType& option_type,

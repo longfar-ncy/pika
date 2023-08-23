@@ -71,10 +71,6 @@ struct StorageOptions {
   Status ResetOptions(const OptionType& option_type, const std::unordered_map<std::string, std::string>& options_map);
   
   // rocksdb-cloud option
-  std::string bucket_prefix = "pika.";
-  std::string bucket_suffix = "database";
-  std::string access_key = "minioadmin";
-  std::string secret_key = "minioadmin";
   rocksdb::CloudFileSystemOptions cloud_fs_options;
 };
 
