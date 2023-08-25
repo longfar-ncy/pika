@@ -24,6 +24,10 @@ foreach(blackwindow_test_source ${BLACKWINDOW_TEST_SOURCE})
   target_link_libraries(${blackwindow_test_name}
     PUBLIC ${GTEST_LIBRARY}
     PUBLIC pstd
+    libaws-cpp-sdk-core.so 
+    libaws-cpp-sdk-transfer.so
+    libaws-cpp-sdk-kinesis.so
+    libaws-cpp-sdk-s3.so
     PUBLIC ${ROCKSDB_LIBRARY}
     PUBLIC storage
     PUBLIC ${GLOG_LIBRARY}
