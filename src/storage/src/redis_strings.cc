@@ -37,8 +37,13 @@ Status RedisStrings::Open(const StorageOptions& storage_options, const std::stri
   ops.table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_ops));
 
   // rocksdb-cloud
-  auto env = GetCloudEnv(storage_options.cloud_fs_options, db_path);
-  ops.env = env.get();
+  Status s = OpenCloudEnv(storage_options.cloud_fs_options, db_path);
+  if (!s.ok()) {
+    // TODO: add log
+    return s;
+  }
+  assert(cloud_env_);
+  ops.env = cloud_env_.get();
   return rocksdb::DBCloud::Open(ops, db_path, "", 0, &db_);
   // return rocksdb::DB::Open(ops, db_path, &db_);
 }

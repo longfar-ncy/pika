@@ -31,9 +31,14 @@ rocksdb::Status RedisSets::Open(const StorageOptions& storage_options, const std
   statistics_store_->SetCapacity(storage_options.statistics_max_size);
   small_compaction_threshold_ = storage_options.small_compaction_threshold;
 
-  auto env = GetCloudEnv(storage_options.cloud_fs_options, db_path);
+  Status env_st = OpenCloudEnv(storage_options.cloud_fs_options, db_path);
+  if (!env_st.ok()) {
+    // TODO: add log
+    return env_st;
+  }
   rocksdb::Options ops(storage_options.options);
-  ops.env = env.get();
+  assert(cloud_env_);
+  ops.env = cloud_env_.get();
   rocksdb::Status s = rocksdb::DBCloud::Open(ops, db_path, "", 0, &db_);
   if (s.ok()) {
     // create column family
@@ -50,7 +55,7 @@ rocksdb::Status RedisSets::Open(const StorageOptions& storage_options, const std
 
   // Open
   rocksdb::Options db_ops(storage_options.options);
-  db_ops.env = env.get();
+  db_ops.env = cloud_env_.get();
   rocksdb::ColumnFamilyOptions meta_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions member_cf_ops(storage_options.options);
   meta_cf_ops.compaction_filter_factory = std::make_shared<SetsMetaFilterFactory>();

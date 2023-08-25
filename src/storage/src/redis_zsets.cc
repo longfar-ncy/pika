@@ -32,9 +32,13 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   statistics_store_->SetCapacity(storage_options.statistics_max_size);
   small_compaction_threshold_ = storage_options.small_compaction_threshold;
 
-  auto env = GetCloudEnv(storage_options.cloud_fs_options, db_path);
+  Status env_st = OpenCloudEnv(storage_options.cloud_fs_options, db_path);
+  if (!env_st.ok()) {
+    // TODO: add log
+    return env_st;
+  }
   rocksdb::Options ops(storage_options.options);
-  ops.env = env.get();
+  ops.env = cloud_env_.get();
   Status s = rocksdb::DBCloud::Open(ops, db_path, "", 0, &db_);
   if (s.ok()) {
     rocksdb::ColumnFamilyHandle *dcf = nullptr;
@@ -55,7 +59,7 @@ Status RedisZSets::Open(const StorageOptions& storage_options, const std::string
   }
 
   rocksdb::Options db_ops(storage_options.options);
-  db_ops.env = env.get();
+  db_ops.env = cloud_env_.get();
   rocksdb::ColumnFamilyOptions meta_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions data_cf_ops(storage_options.options);
   rocksdb::ColumnFamilyOptions score_cf_ops(storage_options.options);
