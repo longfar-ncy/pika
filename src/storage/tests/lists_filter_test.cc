@@ -25,6 +25,28 @@ class ListsFilterTest : public ::testing::Test {
     if (access(db_path.c_str(), F_OK) != 0) {
       mkdir(db_path.c_str(), 0755);
     }
+
+    // rocksdb-cloud env
+    rocksdb::CloudFileSystemOptions cloud_fs_opts;
+    cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
+    assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
+    cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");
+    cloud_fs_opts.dest_bucket.SetBucketName("database.longfar", "pika.");
+    std::string s3_path = db_path[0] == '.' ? db_path.substr(1) : db_path;
+    rocksdb::CloudFileSystem* cfs = nullptr;
+    Status s = rocksdb::CloudFileSystem::NewAwsFileSystem(
+      rocksdb::FileSystem::Default(), 
+      "", s3_path, "", // src  
+      "", s3_path, "", // dest
+      cloud_fs_opts, 
+      nullptr, 
+      &cfs
+    );
+    assert(s.ok());
+    std::shared_ptr<rocksdb::CloudFileSystem> cloud_fs(cfs);
+    cloud_env = NewCompositeEnv(cloud_fs);
+    assert(cloud_env);
+    options.env = cloud_env.get();
     options.create_if_missing = true;
     s = rocksdb::DBCloud::Open(options, db_path, "", 0, &meta_db);
     if (s.ok()) {
@@ -57,6 +79,7 @@ class ListsFilterTest : public ::testing::Test {
 
   storage::Options options;
   rocksdb::DBCloud* meta_db;
+  std::unique_ptr<rocksdb::Env> cloud_env;
   storage::Status s;
 
   std::vector<rocksdb::ColumnFamilyDescriptor> column_families;

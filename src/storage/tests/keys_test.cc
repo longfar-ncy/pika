@@ -26,6 +26,12 @@ class KeysTest : public ::testing::Test {
       mkdir(path.c_str(), 0755);
     }
     storage_options.options.create_if_missing = true;
+    auto& cloud_fs_opts = storage_options.cloud_fs_options;
+    cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
+    assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
+    cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");
+    cloud_fs_opts.dest_bucket.SetBucketName("database.longfar", "pika.");
+    storage_options.options.max_log_file_size = 0; // TODO: better handles of `assert(cloud_maifest)`
     s = db.Open(storage_options, path);
   }
 

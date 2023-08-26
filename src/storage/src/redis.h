@@ -82,7 +82,6 @@ class Redis {
   Status AddCompactKeyTaskIfNeeded(const std::string& key, size_t total);
 
   // rocksdb-cloud
-  // std::unique_ptr<rocksdb::Env> GetCloudEnv(const rocksdb::CloudFileSystemOptions& opts, const std::string& db_path);
   Status OpenCloudEnv(const rocksdb::CloudFileSystemOptions& opts, const std::string& db_path);
   std::unique_ptr<rocksdb::Env> cloud_env_;
 };
