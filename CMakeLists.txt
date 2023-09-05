@@ -585,9 +585,9 @@ ExternalProject_Add(rocksdb
   ${LIBGPERF_NAME}
   ${LIBJEMALLOC_NAME}
   URL
-  https://github.com/wangshao1/rocksdb-cloud/archive/refs/heads/pika.zip
+  https://github.com/longfar-ncy/rocksdb-cloud/archive/refs/heads/pika.zip
   URL_HASH
-  MD5=afe99a7632698b8acd84137d62e6cc1a
+  MD5=91c5870c268cd692fd09fbb5f5cdbfed
   DOWNLOAD_NO_PROGRESS
   1
   UPDATE_COMMAND
