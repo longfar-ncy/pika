@@ -39,7 +39,7 @@ Status RedisStrings::Open(const StorageOptions& storage_options, const std::stri
   // rocksdb-cloud
   Status s = OpenCloudEnv(storage_options.cloud_fs_options, db_path);
   if (!s.ok()) {
-    // TODO: add log
+    LOG(ERROR) << "Failed to open cloud environment: " << s.ToString();
     return s;
   }
   assert(cloud_env_);
