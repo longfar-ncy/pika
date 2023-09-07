@@ -8,9 +8,6 @@
 
 #include <utility>
 
-// #include "rocksdb/db.h"
-#include "rocksdb/cloud/db_cloud.h"
-
 #include "db_checkpoint.h"
 #include "storage.h"
 #include "util.h"
@@ -61,7 +58,7 @@ class BackupEngine {
   std::map<std::string, BackupContent> backup_content_;
   std::map<std::string, pthread_t> backup_pthread_ts_;
 
-  Status NewCheckpoint(rocksdb::DBCloud* rocksdb_db, const std::string& type);
+  Status NewCheckpoint(rocksdb::DB* rocksdb_db, const std::string& type);
   std::string GetSaveDirByType(const std::string& _dir, const std::string& _type) const {
     std::string backup_dir = _dir.empty() ? DEFAULT_BK_PATH : _dir;
     return backup_dir + ((backup_dir.back() != '/') ? "/" : "") + _type;

@@ -20,7 +20,7 @@ namespace storage {
 
 class ZSetsScoreFilter : public rocksdb::CompactionFilter {
  public:
-  ZSetsScoreFilter(rocksdb::DBCloud* db, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
+  ZSetsScoreFilter(rocksdb::DB* db, std::vector<rocksdb::ColumnFamilyHandle*>* handles_ptr)
       : db_(db), cf_handles_ptr_(handles_ptr) {}
 
   bool Filter(int level, const rocksdb::Slice& key, const rocksdb::Slice& value, std::string* new_value,
@@ -76,7 +76,7 @@ class ZSetsScoreFilter : public rocksdb::CompactionFilter {
   const char* Name() const override { return "ZSetsScoreFilter"; }
 
  private:
-  rocksdb::DBCloud* db_ = nullptr;
+  rocksdb::DB* db_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
   rocksdb::ReadOptions default_read_options_;
   mutable std::string cur_key_;
