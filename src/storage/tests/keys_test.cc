@@ -27,6 +27,7 @@ class KeysTest : public ::testing::Test {
     }
     storage_options.options.create_if_missing = true;
     auto& cloud_fs_opts = storage_options.cloud_fs_options;
+    cloud_fs_opts.endpoint_override = "http://127.0.0.1:9000";
     cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
     assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
     cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");

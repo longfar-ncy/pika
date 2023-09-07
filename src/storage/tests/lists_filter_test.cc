@@ -28,6 +28,7 @@ class ListsFilterTest : public ::testing::Test {
 
     // rocksdb-cloud env
     rocksdb::CloudFileSystemOptions cloud_fs_opts;
+    cloud_fs_opts.endpoint_override = "http://127.0.0.1:9000";
     cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
     assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
     cloud_fs_opts.src_bucket.SetBucketName("database.longfar", "pika.");
