@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "rocksdb/compaction_filter.h"
-// #include "rocksdb/db.h"
+
 #include "src/debug.h"
 #include "src/lists_data_key_format.h"
 #include "src/lists_meta_value_format.h"
@@ -60,7 +60,7 @@ class ListsMetaFilterFactory : public rocksdb::CompactionFilterFactory {
 
 class ListsDataFilter : public rocksdb::CompactionFilter {
  public:
-  ListsDataFilter(rocksdb::DBCloud* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
+  ListsDataFilter(rocksdb::DB* db, std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr)
       : db_(db),
         cf_handles_ptr_(cf_handles_ptr)
         {}
@@ -118,7 +118,7 @@ class ListsDataFilter : public rocksdb::CompactionFilter {
   const char* Name() const override { return "ListsDataFilter"; }
 
  private:
-  rocksdb::DBCloud* db_ = nullptr;
+  rocksdb::DB* db_ = nullptr;
   std::vector<rocksdb::ColumnFamilyHandle*>* cf_handles_ptr_ = nullptr;
   rocksdb::ReadOptions default_read_options_;
   mutable std::string cur_key_;

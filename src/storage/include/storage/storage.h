@@ -22,7 +22,6 @@
 #include "rocksdb/status.h"
 #include "rocksdb/table.h"
 #include "rocksdb/cloud/cloud_file_system.h"
-#include "rocksdb/cloud/db_cloud.h"
 
 #include "pstd/include/pstd_mutex.h"
 
@@ -1023,7 +1022,7 @@ class Storage {
   Status GetKeyNum(std::vector<KeyInfo>* key_infos);
   Status StopScanKeyNum();
 
-  rocksdb::DBCloud* GetDBByType(const std::string& type);
+  rocksdb::DB* GetDBByType(const std::string& type);
 
   Status SetOptions(const OptionType& option_type, const std::string& db_type,
                     const std::unordered_map<std::string, std::string>& options);
