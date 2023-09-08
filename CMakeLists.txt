@@ -749,6 +749,10 @@ endif()
 set(ROCKSDB_INCLUDE_DIR ${INSTALL_INCLUDEDIR})
 set(ROCKSDB_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${EP_BASE_SUFFIX}/Source/rocksdb)
 
+if(USE_S3)
+	add_compile_definitions(USE_S3)
+endif()
+
 add_subdirectory(src/pstd)
 add_subdirectory(src/net)
 add_subdirectory(src/storage)

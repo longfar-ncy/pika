@@ -26,6 +26,8 @@ class ListsFilterTest : public ::testing::Test {
       mkdir(db_path.c_str(), 0755);
     }
 
+		options.create_if_missing = true;
+
 #ifdef USE_S3
     // rocksdb-cloud env
     rocksdb::CloudFileSystemOptions cloud_fs_opts;
@@ -52,7 +54,7 @@ class ListsFilterTest : public ::testing::Test {
     options.create_if_missing = true;
     s = rocksdb::DBCloud::Open(options, db_path, "", 0, &meta_db);
 #else
-    s = rocksdb::DB::Open(options, db_path, &meta_db)
+    s = rocksdb::DB::Open(options, db_path, &meta_db);
 #endif
 
     if (s.ok()) {
@@ -76,6 +78,7 @@ class ListsFilterTest : public ::testing::Test {
 #else
     s = rocksdb::DB::Open(options, db_path, column_families, &handles, &meta_db);
 #endif
+		assert(s.ok());
   }
   ~ListsFilterTest() override = default;
 
@@ -88,13 +91,13 @@ class ListsFilterTest : public ::testing::Test {
   }
 
   storage::Options options;
+  storage::Status s;
 #ifdef USE_S3
   rocksdb::DBCloud* meta_db;
+  std::unique_ptr<rocksdb::Env> cloud_env;
 #else
   rocksdb::DB* meta_db;
 #endif
-  std::unique_ptr<rocksdb::Env> cloud_env;
-  storage::Status s;
 
   std::vector<rocksdb::ColumnFamilyDescriptor> column_families;
   std::vector<rocksdb::ColumnFamilyHandle*> handles;
