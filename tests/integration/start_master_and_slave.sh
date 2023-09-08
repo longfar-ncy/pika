@@ -9,4 +9,6 @@ sed -i '' -e 's|databases : 1|databases : 2|' -e 's|port : 9221|port : 9231|' -e
 ./pika -c ./pika_master.conf
 ./pika -c ./pika_slave.conf
 #ensure both master and slave are ready
-sleep 10
+while ! nc -z localhost 9231; do
+		sleep 1
+done
