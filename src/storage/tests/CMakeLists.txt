@@ -24,16 +24,20 @@ foreach(blackwindow_test_source ${BLACKWINDOW_TEST_SOURCE})
   target_link_libraries(${blackwindow_test_name}
     PUBLIC ${GTEST_LIBRARY}
     PUBLIC pstd
-    libaws-cpp-sdk-core.so 
-    libaws-cpp-sdk-transfer.so
-    libaws-cpp-sdk-kinesis.so
-    libaws-cpp-sdk-s3.so
     PUBLIC ${ROCKSDB_LIBRARY}
     PUBLIC storage
     PUBLIC ${GLOG_LIBRARY}
     PUBLIC ${GFLAGS_LIBRARY}
     PUBLIC ${LIBUNWIND_LIBRARY}
   )
+	if (USE_S3)
+		target_link_libraries(${blackwindow_test_name}
+			PUBLIC libaws-cpp-sdk-core.so 
+			PUBLIC libaws-cpp-sdk-transfer.so
+			PUBLIC libaws-cpp-sdk-kinesis.so
+			PUBLIC libaws-cpp-sdk-s3.so
+		)
+	endif()
   add_test(NAME ${blackwindow_test_name}
     COMMAND ${blackwindow_test_name}
     WORKING_DIRECTORY .)

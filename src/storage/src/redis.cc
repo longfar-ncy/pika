@@ -72,6 +72,7 @@ Status Redis::AddCompactKeyTaskIfNeeded(const std::string& key, size_t total) {
   return Status::OK();
 }
 
+#ifdef USE_S3
 Status Redis::OpenCloudEnv(rocksdb::CloudFileSystemOptions opts, const std::string& db_path) { 
   std::string s3_path = db_path[0] == '.' ? db_path.substr(1) : db_path;
   opts.src_bucket.SetObjectPath(s3_path);
@@ -89,6 +90,7 @@ Status Redis::OpenCloudEnv(rocksdb::CloudFileSystemOptions opts, const std::stri
   }
   return s;
 }
+#endif
 
 Status Redis::SetOptions(const OptionType& option_type, const std::unordered_map<std::string, std::string>& options) {
   if (option_type == OptionType::kDB) {

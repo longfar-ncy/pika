@@ -337,6 +337,7 @@ class PikaConf : public pstd::BaseConf {
   std::string compression_all_levels() const { return compression_per_level_; };
   static rocksdb::CompressionType GetCompression(const std::string& value);
 
+#ifdef USE_S3
   // rocksdb-cloud options
   std::string cloud_endpoint_override() { return cloud_endpoint_override_; }
   std::string cloud_access_key() { return cloud_access_key_; }
@@ -347,6 +348,7 @@ class PikaConf : public pstd::BaseConf {
   std::string cloud_dest_bucket_prefix() { return cloud_dest_bucket_prefix_; }
   std::string cloud_dest_bucket_suffix() { return cloud_dest_bucket_suffix_; }
   std::string cloud_dest_bucket_region() { return cloud_dest_bucket_region_; }
+#endif
 
   // Setter
   void SetPort(const int value) {
@@ -674,6 +676,7 @@ class PikaConf : public pstd::BaseConf {
   int64_t blob_cache_ = 0;
   int64_t blob_num_shard_bits_ = 0;
 
+#ifdef USE_S3
   // rocksdb-cloud options
   std::string cloud_endpoint_override_;
   std::string cloud_access_key_;
@@ -686,6 +689,7 @@ class PikaConf : public pstd::BaseConf {
   std::string cloud_dest_bucket_prefix_ = "pika.";
   std::string cloud_dest_bucket_suffix_ = "database";
   std::string cloud_dest_bucket_region_;
+#endif
 
   std::unique_ptr<PikaMeta> local_meta_;
 
