@@ -126,6 +126,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up AWS SDK for C++
+        run: |
+          sudo yum install libcurl-devel openssl-devel libuuid-devel pulseaudio-libs-devel
+          git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
+          mkdir sdk_build
+          cd sdk_build
+          cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
+          make
+          sudo make install
+
       - name: Start UP MinIO
         uses: infleet/minio-action@v0.0.1
         with:
@@ -191,16 +201,17 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install redis
 
-      - name: Start UP MinIO
-        uses: infleet/minio-action@v0.0.1
-        with:
-          username: "minioadmin"
-          password: "minioadmin"
+      # - name: Start UP MinIO
+      #   uses: infleet/minio-action@v0.0.1
+      #   with:
+      #     username: "minioadmin"
+      #     password: "minioadmin"
 
       - name: Configure CMake
         run: |
           export CC=/usr/local/opt/gcc@10/bin/gcc-10 
-          cmake -B build -DCMAKE_C_COMPILER=/usr/local/opt/gcc@10/bin/gcc-10 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DUSE_S3=ON -DCMAKE_CXX_FLAGS_DEBUG=-fsanitize=address
+          cmake -B build -DCMAKE_C_COMPILER=/usr/local/opt/gcc@10/bin/gcc-10 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_CXX_FLAGS_DEBUG=-fsanitize=address
+        #  cmake -B build -DCMAKE_C_COMPILER=/usr/local/opt/gcc@10/bin/gcc-10 -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DUSE_S3=ON -DCMAKE_CXX_FLAGS_DEBUG=-fsanitize=address
 
       - name: Build
         run: |
