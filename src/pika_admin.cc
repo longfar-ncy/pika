@@ -151,6 +151,10 @@ void SlaveofCmd::Do(std::shared_ptr<Slot> slot) {
     return;
   }
 
+  /* The return value of the slaveof command OK does not really represent whether
+   * the data synchronization was successful, but only changes the status of the
+   * slaveof executor to slave */
+
   bool sm_ret = g_pika_server->SetMaster(master_ip_, static_cast<int32_t>(master_port_));
 
   if (sm_ret) {
@@ -1038,7 +1042,7 @@ void InfoCmd::InfoReplication(std::string& info) {
       info.append("ERR: server role is error\r\n");
       return;
   }
-
+  tmp_stream << "ReplicationID: " << g_pika_conf->replication_id() << "\r\n";
   std::string slaves_list_str;
   switch (host_role) {
     case PIKA_ROLE_SLAVE:
@@ -1324,6 +1328,8 @@ void ConfigCmd::Do(std::shared_ptr<Slot> slot) {
     ConfigRewrite(config_ret);
   } else if (strcasecmp(config_args_v_[0].data(), "resetstat") == 0) {
     ConfigResetstat(config_ret);
+  } else if (strcasecmp(config_args_v_[0].data(), "rewritereplicationid") == 0) {
+    ConfigRewriteReplicationID(config_ret);
   }
   res_.AppendStringRaw(config_ret);
 }
@@ -1837,6 +1843,24 @@ void ConfigCmd::ConfigGet(std::string& ret) {
     EncodeString(&config_body, g_pika_conf->slave_read_only() ? "yes" : "no");
   }
 
+  if (pstd::stringmatch(pattern.data(), "throttle-bytes-per-second", 1) != 0) {
+    elements += 2;
+    EncodeString(&config_body, "throttle-bytes-per-second");
+    EncodeNumber(&config_body, g_pika_conf->throttle_bytes_per_second());
+  }
+
+  if (pstd::stringmatch(pattern.data(), "max-rsync-parallel-num", 1) != 0) {
+    elements += 2;
+    EncodeString(&config_body, "max-rsync-parallel-num");
+    EncodeNumber(&config_body, g_pika_conf->max_rsync_parallel_num());
+  }
+
+  if (pstd::stringmatch(pattern.data(), "replication-id", 1) != 0) {
+    elements += 2;
+    EncodeString(&config_body, "replication-id");
+    EncodeString(&config_body, g_pika_conf->replication_id());
+  }
+
   std::stringstream resp;
   resp << "*" << std::to_string(elements) << "\r\n" << config_body;
   ret = resp.str();
@@ -1879,6 +1903,8 @@ void ConfigCmd::ConfigSet(std::string& ret) {
     EncodeString(&ret, "write-buffer-size");
     EncodeString(&ret, "max-write-buffer-num");
     EncodeString(&ret, "arena-block-size");
+    EncodeString(&ret, "throttle-bytes-per-second");
+    EncodeString(&ret, "max-rsync-parallel-num");
     return;
   }
   long int ival;
@@ -2161,6 +2187,20 @@ void ConfigCmd::ConfigSet(std::string& ret) {
     }
     g_pika_conf->SetArenaBlockSize(static_cast<int>(ival));
     ret = "+OK\r\n";
+  } else if (set_item == "throttle-bytes-per-second") {
+    if ((pstd::string2int(value.data(), value.size(), &ival) == 0) || ival <= 0) {
+      ret = "-ERR Invalid argument \'" + value + "\' for CONFIG SET 'throttle-bytes-per-second'\r\n";
+      return;
+    }
+    g_pika_conf->SetThrottleBytesPerSecond(static_cast<int>(ival));
+    ret = "+OK\r\n";
+  } else if (set_item == "max-rsync-parallel-num") {
+    if ((pstd::string2int(value.data(), value.size(), &ival) == 0) || ival > kMaxRsyncParallelNum) {
+      ret = "-ERR Invalid argument \'" + value + "\' for CONFIG SET 'max-rsync-parallel-num'\r\n";
+      return;
+    }
+    g_pika_conf->SetMaxRsyncParallelNum(static_cast<int>(ival));
+    ret = "+OK\r\n";
   } else {
     ret = "-ERR Unsupported CONFIG parameter: " + set_item + "\r\n";
   }
@@ -2171,6 +2211,14 @@ void ConfigCmd::ConfigRewrite(std::string& ret) {
     ret = "+OK\r\n";
   } else {
     ret = "-ERR Rewire CONFIG fail\r\n";
+  }
+}
+
+void ConfigCmd::ConfigRewriteReplicationID(std::string &ret) {
+  if (g_pika_conf->ConfigRewriteReplicationID() != 0) {
+    ret = "+OK\r\n";
+  } else {
+    ret = "-ERR Rewire ReplicationID CONFIG fail\r\n";
   }
 }
 
@@ -2597,6 +2645,19 @@ void DiskRecoveryCmd::Do(std::shared_ptr<Slot> slot) {
     }
   }
   res_.SetRes(CmdRes::kOk, "The disk error has been recovered");
+}
+
+void ClearReplicationIDCmd::DoInitial() {
+  if (!CheckArg(argv_.size())) {
+    res_.SetRes(CmdRes::kWrongNum, kCmdNameClearReplicationID);
+    return;
+  }
+}
+
+void ClearReplicationIDCmd::Do(std::shared_ptr<Slot> slot) {
+  g_pika_conf->SetReplicationID("");
+  g_pika_conf->ConfigRewriteReplicationID();
+  res_.SetRes(CmdRes::kOk, "ReplicationID is cleared");
 }
 
 #ifdef WITH_COMMAND_DOCS
