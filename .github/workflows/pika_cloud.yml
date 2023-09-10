@@ -128,7 +128,7 @@ jobs:
 
       - name: Set up AWS SDK for C++
         run: |
-          yum install libcurl-devel openssl-devel libuuid-devel pulseaudio-libs-devel
+          yum install -y libcurl-devel openssl-devel libuuid-devel pulseaudio-libs-devel
           git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
           mkdir sdk_build
           cd sdk_build
