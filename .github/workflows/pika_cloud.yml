@@ -1,4 +1,4 @@
-name: Pika-cloud
+name: Pika_cloud
 
 on:
   push:
@@ -51,6 +51,7 @@ jobs:
           cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
           make
           sudo make install
+          export LD_LIBRARY_PATH=/usr/local/lib
       
       - name: Set up and start MinIO
         run: |
