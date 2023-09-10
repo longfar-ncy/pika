@@ -52,11 +52,11 @@ jobs:
           make
           sudo make install
       
-      - name: Start up MinIO
-        uses: infleet/minio-action@v0.0.1
-        with:
-          username: "minioadmin"
-          password: "minioadmin"
+      - name: Set up and start MinIO
+        run: |
+          wget https://dl.minio.org.cn/server/minio/release/linux-amd64/minio
+          chmod +x minio
+          ./minio server minio_data
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -134,14 +134,14 @@ jobs:
           cd sdk_build
           cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
           make
-          sudo make install
+          make install
 
-      - name: Start UP MinIO
-        uses: infleet/minio-action@v0.0.1
-        with:
-          username: "minioadmin"
-          password: "minioadmin"
-
+      - name: Set up and start MinIO
+        run: |
+          wget https://dl.minio.org.cn/server/minio/release/linux-amd64/minio
+          chmod +x minio
+          ./minio server minio_data
+      
       - name: Configure CMake
         run: |
           source /opt/rh/devtoolset-10/enable
