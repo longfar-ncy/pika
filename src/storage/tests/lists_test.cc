@@ -83,10 +83,10 @@ class ListsTest : public ::testing::Test {
     auto& cloud_fs_opts = storage_options.cloud_fs_options;
     cloud_fs_opts.endpoint_override = "http://127.0.0.1:9000";
     cloud_fs_opts.credentials.InitializeSimple("minioadmin", "minioadmin");
-    assert(cloud_fs_opts.credentials.HasValid().ok()); // TODO: add handle error 
+    ASSERT_TRUE(cloud_fs_opts.credentials.HasValid().ok()); 
     cloud_fs_opts.src_bucket.SetBucketName("database.unit.test", "pika.");
     cloud_fs_opts.dest_bucket.SetBucketName("database.unit.test", "pika.");
-    storage_options.options.max_log_file_size = 0; // TODO: better handles of `assert(cloud_maifest)`
+    storage_options.options.max_log_file_size = 0; 
 #endif
     s = db.Open(storage_options, path);
     if (!s.ok()) {
