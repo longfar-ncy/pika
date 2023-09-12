@@ -51,7 +51,6 @@ jobs:
           cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/local/ -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
           make
           sudo make install
-          export LD_LIBRARY_PATH=/usr/local/lib
       
       - name: Set up and start MinIO
         run: |
@@ -73,6 +72,8 @@ jobs:
         # Execute tests defined by the CMake configuration.
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: |
+          export LD_LIBRARY_PATH=/usr/local/lib
+          ls /usr/local/lib
           ./src/storage/tests/custom_comparator_test
           ./src/storage/tests/hashes_filter_test
           ./src/storage/tests/hashes_test
