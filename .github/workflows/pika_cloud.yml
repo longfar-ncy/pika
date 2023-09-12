@@ -9,6 +9,7 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: RelWithDebInfo
+  LD_LIBRARY_PATH: /usr/local/lib
 
 jobs:
   build_on_ubuntu:
@@ -48,7 +49,7 @@ jobs:
           git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
           mkdir sdk_build
           cd sdk_build
-          cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/usr/ DCMAKE_INSTALL_PREFIX=/usr/ -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
+          cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.LD_LIBRARY_PATH }} DCMAKE_INSTALL_PREFIX=${{ env.LD_LIBRARY_PATH }} -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
           make
           sudo make install
       
