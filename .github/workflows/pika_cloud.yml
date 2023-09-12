@@ -134,7 +134,7 @@ jobs:
           git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
           mkdir sdk_build
           cd sdk_build
-          cmake ../aws-sdk-cpp -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.LD_LIBRARY_PATH }} -DCMAKE_INSTALL_PREFIX=${{ env.LD_LIBRARY_PATH }} -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
+          cmake ../aws-sdk-cpp -DENABLE_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.LD_LIBRARY_PATH }} -DCMAKE_INSTALL_PREFIX=${{ env.LD_LIBRARY_PATH }} -DBUILD_ONLY="s3;core;transfer;kinesis" -DBUILD_SHARED_LIBS=ON
           make
           make install
 
