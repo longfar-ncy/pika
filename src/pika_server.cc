@@ -34,6 +34,8 @@ extern PikaServer* g_pika_server;
 extern std::unique_ptr<PikaReplicaManager> g_pika_rm;
 extern std::unique_ptr<PikaCmdTableManager> g_pika_cmd_table_manager;
 extern std::unique_ptr<net::NetworkStatistic> g_network_statistic;
+// QUEUE_SIZE_THRESHOLD_PERCENTAGE is used to represent a percentage value and should be within the range of 0 to 100.
+const size_t QUEUE_SIZE_THRESHOLD_PERCENTAGE = 75;
 
 void DoPurgeDir(void* arg) {
   std::unique_ptr<std::string> path(static_cast<std::string*>(arg));
@@ -854,6 +856,13 @@ size_t PikaServer::ClientProcessorThreadPoolCurQueueSize() {
   return pika_client_processor_->ThreadPoolCurQueueSize();
 }
 
+size_t PikaServer::ClientProcessorThreadPoolMaxQueueSize() {
+  if (!pika_client_processor_) {
+    return 0;
+  }
+  return pika_client_processor_->ThreadPoolMaxQueueSize();
+}
+
 void PikaServer::BGSaveTaskSchedule(net::TaskFunc func, void* arg) {
   bgsave_thread_.StartThread();
   bgsave_thread_.Schedule(func, arg);
@@ -1298,6 +1307,8 @@ void PikaServer::DoTimingTask() {
   ResetLastSecQuerynum();
   // Auto update network instantaneous metric
   AutoUpdateNetworkMetric();
+  // Print the queue status periodically
+  PrintThreadPoolQueueStatus();
 }
 
 void PikaServer::AutoCompactRange() {
@@ -1491,6 +1502,16 @@ void PikaServer::AutoUpdateNetworkMetric() {
                                      current_time, factor);
 }
 
+void PikaServer::PrintThreadPoolQueueStatus() {
+    // Print the current queue size if it exceeds QUEUE_SIZE_THRESHOLD_PERCENTAGE/100 of the maximum queue size.
+    size_t cur_size = ClientProcessorThreadPoolCurQueueSize();
+    size_t max_size = ClientProcessorThreadPoolMaxQueueSize();
+    size_t thread_hold = (max_size / 100) * QUEUE_SIZE_THRESHOLD_PERCENTAGE;
+    if (cur_size > thread_hold) {
+      LOG(INFO) << "The current queue size of the Pika Server's client thread processor thread pool: " << cur_size;
+    }
+}
+
 void PikaServer::InitStorageOptions() {
   std::lock_guard rwl(storage_options_rw_);
 
@@ -1569,6 +1590,21 @@ void PikaServer::InitStorageOptions() {
           rocksdb::NewLRUCache(g_pika_conf->blob_cache(), static_cast<int>(g_pika_conf->blob_num_shard_bits()));
     }
   }
+
+#ifdef USE_S3
+  // rocksdb-cloud
+  auto& cloud_fs_opts = storage_options_.cloud_fs_options;
+  storage_options_.options.max_log_file_size = 0; // TODO: better handles of `assert(cloud_maifest)`
+	cloud_fs_opts.endpoint_override = g_pika_conf->cloud_endpoint_override();
+  cloud_fs_opts.credentials.InitializeSimple(g_pika_conf->cloud_access_key(), g_pika_conf->cloud_secret_key());
+  if (!cloud_fs_opts.credentials.HasValid().ok()) {
+    LOG(FATAL) << "Please set aws access key and secret key to access s3";
+  }
+  cloud_fs_opts.src_bucket.SetBucketName(g_pika_conf->cloud_src_bucket_suffix(), g_pika_conf->cloud_src_bucket_prefix());
+  cloud_fs_opts.src_bucket.SetRegion(g_pika_conf->cloud_src_bucket_region());
+  cloud_fs_opts.dest_bucket.SetBucketName(g_pika_conf->cloud_dest_bucket_suffix(), g_pika_conf->cloud_dest_bucket_prefix());
+  cloud_fs_opts.dest_bucket.SetRegion(g_pika_conf->cloud_dest_bucket_region());
+#endif
 }
 
 storage::Status PikaServer::RewriteStorageOptions(const storage::OptionType& option_type,
